@@ -59,7 +59,7 @@ class ConfirmedAppointmentManagementTests {
 
 	@BeforeEach
 	void stubEmailProvider() {
-		emailProvider.stubFor(WireMock.post(WireMock.urlEqualTo("/send")).willReturn(WireMock.aResponse().withStatus(200)));
+		emailProvider.stubFor(WireMock.post(WireMock.urlEqualTo("/emails")).willReturn(WireMock.aResponse().withStatus(200)));
 	}
 
 	@AfterEach
@@ -92,8 +92,8 @@ class ConfirmedAppointmentManagementTests {
 		Appointment reloaded = appointmentRepository.findById(confirmed.getId()).orElseThrow();
 		assertThat(reloaded.getStartTime()).isEqualTo(newStart);
 		assertThat(reloaded.getStatus()).isEqualTo(AppointmentStatus.CONFIRMED);
-		emailProvider.verify(WireMock.postRequestedFor(WireMock.urlEqualTo("/send"))
-				.withRequestBody(WireMock.matchingJsonPath("$.to", WireMock.equalTo("ada@example.com")))
+		emailProvider.verify(WireMock.postRequestedFor(WireMock.urlEqualTo("/emails"))
+				.withRequestBody(WireMock.matchingJsonPath("$.to[0]", WireMock.equalTo("ada@example.com")))
 				.withRequestBody(WireMock.matchingJsonPath("$.subject", WireMock.containing("reschedul"))));
 	}
 
@@ -129,8 +129,8 @@ class ConfirmedAppointmentManagementTests {
 
 		assertThat(appointmentRepository.findById(confirmed.getId()).orElseThrow().getStatus())
 				.isEqualTo(AppointmentStatus.CANCELLED);
-		emailProvider.verify(WireMock.postRequestedFor(WireMock.urlEqualTo("/send"))
-				.withRequestBody(WireMock.matchingJsonPath("$.to", WireMock.equalTo("ada@example.com")))
+		emailProvider.verify(WireMock.postRequestedFor(WireMock.urlEqualTo("/emails"))
+				.withRequestBody(WireMock.matchingJsonPath("$.to[0]", WireMock.equalTo("ada@example.com")))
 				.withRequestBody(WireMock.matchingJsonPath("$.subject", WireMock.containing("cancel"))));
 	}
 
@@ -146,7 +146,7 @@ class ConfirmedAppointmentManagementTests {
 
 		assertThat(appointmentRepository.findById(confirmed.getId()).orElseThrow().getStatus())
 				.isEqualTo(AppointmentStatus.COMPLETED);
-		emailProvider.verify(0, WireMock.postRequestedFor(WireMock.urlEqualTo("/send")));
+		emailProvider.verify(0, WireMock.postRequestedFor(WireMock.urlEqualTo("/emails")));
 	}
 
 	@Test

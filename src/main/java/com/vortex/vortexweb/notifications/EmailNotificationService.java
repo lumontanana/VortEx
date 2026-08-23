@@ -6,6 +6,11 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import java.util.List;
+
+/**
+ * Sends email via the Resend API (https://resend.com/docs/api-reference/emails/send-email).
+ */
 @Service
 class EmailNotificationService implements NotificationService {
 
@@ -24,10 +29,10 @@ class EmailNotificationService implements NotificationService {
 	public void send(String to, String subject, String body) {
 		try {
 			restClient.post()
-					.uri("/send")
+					.uri("/emails")
 					.header("Authorization", "Bearer " + properties.apiKey())
 					.contentType(MediaType.APPLICATION_JSON)
-					.body(new EmailRequest(properties.fromAddress(), to, subject, body))
+					.body(new EmailRequest(properties.fromAddress(), List.of(to), subject, body))
 					.retrieve()
 					.toBodilessEntity();
 		}
@@ -36,7 +41,7 @@ class EmailNotificationService implements NotificationService {
 		}
 	}
 
-	private record EmailRequest(String from, String to, String subject, String body) {
+	private record EmailRequest(String from, List<String> to, String subject, String text) {
 	}
 
 }

@@ -58,7 +58,7 @@ class BookingNotificationTests {
 
 	@BeforeEach
 	void stubEmailProvider() {
-		emailProvider.stubFor(WireMock.post(WireMock.urlEqualTo("/send"))
+		emailProvider.stubFor(WireMock.post(WireMock.urlEqualTo("/emails"))
 				.willReturn(WireMock.aResponse().withStatus(200)));
 	}
 
@@ -84,16 +84,16 @@ class BookingNotificationTests {
 						.with(csrf()))
 				.andExpect(status().is3xxRedirection());
 
-		emailProvider.verify(WireMock.postRequestedFor(WireMock.urlEqualTo("/send"))
-				.withRequestBody(WireMock.matchingJsonPath("$.to", WireMock.equalTo("ada@example.com")))
+		emailProvider.verify(WireMock.postRequestedFor(WireMock.urlEqualTo("/emails"))
+				.withRequestBody(WireMock.matchingJsonPath("$.to[0]", WireMock.equalTo("ada@example.com")))
 				.withRequestBody(WireMock.matchingJsonPath("$.subject", WireMock.containing("request")))
-				.withRequestBody(WireMock.matchingJsonPath("$.body", WireMock.containing("A small geometric piece"))));
+				.withRequestBody(WireMock.matchingJsonPath("$.text", WireMock.containing("A small geometric piece"))));
 	}
 
 	@Test
 	void submittingABookingRequestStillSucceedsWhenTheEmailProviderFails() throws Exception {
 		emailProvider.resetAll();
-		emailProvider.stubFor(WireMock.post(WireMock.urlEqualTo("/send"))
+		emailProvider.stubFor(WireMock.post(WireMock.urlEqualTo("/emails"))
 				.willReturn(WireMock.aResponse().withStatus(500)));
 		LocalDate tomorrow = LocalDate.now().plusDays(1);
 		availabilityRuleRepository
