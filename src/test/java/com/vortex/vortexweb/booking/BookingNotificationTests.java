@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -87,6 +88,27 @@ class BookingNotificationTests {
 				.withRequestBody(WireMock.matchingJsonPath("$.to", WireMock.equalTo("ada@example.com")))
 				.withRequestBody(WireMock.matchingJsonPath("$.subject", WireMock.containing("request")))
 				.withRequestBody(WireMock.matchingJsonPath("$.body", WireMock.containing("A small geometric piece"))));
+	}
+
+	@Test
+	void submittingABookingRequestStillSucceedsWhenTheEmailProviderFails() throws Exception {
+		emailProvider.resetAll();
+		emailProvider.stubFor(WireMock.post(WireMock.urlEqualTo("/send"))
+				.willReturn(WireMock.aResponse().withStatus(500)));
+		LocalDate tomorrow = LocalDate.now().plusDays(1);
+		availabilityRuleRepository
+				.save(new AvailabilityRule(tomorrow.getDayOfWeek(), LocalTime.of(9, 0), LocalTime.of(10, 0)));
+		LocalDateTime slotStart = tomorrow.atTime(9, 0);
+
+		mockMvc.perform(post("/booking")
+						.param("slotStart", slotStart.toString())
+						.param("clientName", "Ada Lovelace")
+						.param("clientEmail", "ada@example.com")
+						.param("description", "A small geometric piece")
+						.with(csrf()))
+				.andExpect(status().is3xxRedirection());
+
+		assertThat(appointmentRepository.findAll()).hasSize(1);
 	}
 
 }
