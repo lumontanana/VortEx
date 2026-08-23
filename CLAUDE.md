@@ -17,6 +17,7 @@ This is a Spring Boot project being built out feature-by-feature via GitHub-issu
 - `com.vortex.vortexweb.admin` — admin-only, authenticated controllers/views (protected by `SecurityConfig` under `/admin/**`).
 - `com.vortex.vortexweb.availability` — `AvailabilityRule` and `BlockedPeriod` entities/repositories (no controllers here — admin management of them lives in `com.vortex.vortexweb.admin.AvailabilityAdminController`, following the "admin controllers live in `admin`" convention above).
 - `com.vortex.vortexweb.booking` — the public-facing booking domain: `Appointment`/`AppointmentStatus`/`AppointmentRepository`, the `Slot` value type, `SlotService` (computes open slots from availability rules minus blocked periods minus taken appointments, sliced by `vortex.booking.default-duration-minutes`), and the public `BookingController` (unauthenticated, not under `/admin/**`).
+- `com.vortex.vortexweb.notifications` — `NotificationService` interface (`send(to, subject, body)`) abstracting outbound client emails, with `EmailNotificationService` as the sole implementation (calls a transactional email provider's HTTP API via a `RestClient`, configured from `vortex.notifications.email.*`). Callers (e.g. `BookingController`) depend only on the interface; tests that don't care about emails should `@MockitoBean` it rather than let real submissions hit the (fake) configured provider URL.
 
 ## Stack
 
@@ -69,6 +70,8 @@ On Windows PowerShell, use `mvnw.cmd` instead of `./mvnw`.
 - Docker Desktop must be running for both `spring-boot:run` and `./mvnw test` — both start the `postgres` service from `compose.yaml` automatically, but only if the Docker daemon itself is already up.
 - Primary test seam (established by the admin-authentication ticket, `AdminAuthenticationTests`): `@SpringBootTest` + `@AutoConfigureMockMvc`, exercising the real controller/security-filter-chain/DB stack with nothing internal mocked. Use `spring-security-test`'s `formLogin()`/`authenticated()`/`unauthenticated()` helpers for auth flows.
 - `spring.jpa.hibernate.ddl-auto=update` is set in `application.properties`. There's no Flyway/Liquibase migration tool yet — this is the pragmatic default for a greenfield app with no other schema consumers. Revisit (switch to a real migration tool) before this app has real production data to lose.
+- Outbound HTTP to a real provider (currently just the email provider) is stubbed in tests with **WireMock** (`wiremock-standalone`, test-scoped) bound to a dynamic port via `@DynamicPropertySource`, not `MockRestServiceServer` — Spring Boot's auto-configured `RestClient.Builder` bean is `@Scope("prototype")`, so a test can't reliably bind a mock server to the same builder instance a production `@Bean` used to build its `RestClient`. A real embedded server sidesteps that entirely. See `BookingNotificationTests` for the pattern.
+- The JDK's default `HttpClient`-backed request factory negotiates HTTP/2 against WireMock's embedded Jetty and gets `RST_STREAM`'d. Tests that talk to a WireMock server must force HTTP/1.1 via `spring.http.clients.imperative.factory=simple` (a `@DynamicPropertySource` entry) — this is a test-only workaround for the local plaintext HTTP/2 negotiation, not something production (HTTPS providers with proper ALPN) needs.
 
 ## Branch workflow
 
