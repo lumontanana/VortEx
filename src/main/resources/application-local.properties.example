@@ -1,0 +1,4 @@
+# Copy this file to application-local.properties (git-ignored) and fill in your real API key.
+# Run the app with the "local" profile active to pick it up, e.g.:
+#   ./mvnw spring-boot:run -Dspring-boot.run.profiles=local
+vortex.notifications.email.api-key=re_your_real_key_here

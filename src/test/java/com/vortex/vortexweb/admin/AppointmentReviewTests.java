@@ -60,7 +60,7 @@ class AppointmentReviewTests {
 
 	@BeforeEach
 	void stubEmailProvider() {
-		emailProvider.stubFor(WireMock.post(WireMock.urlEqualTo("/send")).willReturn(WireMock.aResponse().withStatus(200)));
+		emailProvider.stubFor(WireMock.post(WireMock.urlEqualTo("/emails")).willReturn(WireMock.aResponse().withStatus(200)));
 	}
 
 	@AfterEach
@@ -118,8 +118,8 @@ class AppointmentReviewTests {
 
 		assertThat(appointmentRepository.findById(pending.getId()).orElseThrow().getStatus())
 				.isEqualTo(AppointmentStatus.CONFIRMED);
-		emailProvider.verify(WireMock.postRequestedFor(WireMock.urlEqualTo("/send"))
-				.withRequestBody(WireMock.matchingJsonPath("$.to", WireMock.equalTo("ada@example.com")))
+		emailProvider.verify(WireMock.postRequestedFor(WireMock.urlEqualTo("/emails"))
+				.withRequestBody(WireMock.matchingJsonPath("$.to[0]", WireMock.equalTo("ada@example.com")))
 				.withRequestBody(WireMock.matchingJsonPath("$.subject", WireMock.containing("confirmed"))));
 	}
 
@@ -151,8 +151,8 @@ class AppointmentReviewTests {
 
 		assertThat(appointmentRepository.findById(pending.getId()).orElseThrow().getStatus())
 				.isEqualTo(AppointmentStatus.DECLINED);
-		emailProvider.verify(WireMock.postRequestedFor(WireMock.urlEqualTo("/send"))
-				.withRequestBody(WireMock.matchingJsonPath("$.to", WireMock.equalTo("ada@example.com")))
+		emailProvider.verify(WireMock.postRequestedFor(WireMock.urlEqualTo("/emails"))
+				.withRequestBody(WireMock.matchingJsonPath("$.to[0]", WireMock.equalTo("ada@example.com")))
 				.withRequestBody(WireMock.matchingJsonPath("$.subject", WireMock.containing("declined"))));
 	}
 
