@@ -67,6 +67,16 @@ On Windows PowerShell, use `mvnw.cmd` instead of `./mvnw`.
 - Docker Desktop must be running for both `spring-boot:run` and `./mvnw test` — both start the `postgres` service from `compose.yaml` automatically, but only if the Docker daemon itself is already up.
 - Primary test seam (established by the admin-authentication ticket, `AdminAuthenticationTests`): `@SpringBootTest` + `@AutoConfigureMockMvc`, exercising the real controller/security-filter-chain/DB stack with nothing internal mocked. Use `spring-security-test`'s `formLogin()`/`authenticated()`/`unauthenticated()` helpers for auth flows.
 
+## Branch workflow
+
+Work on tickets happens on branches, never directly on `main`:
+
+1. Branch off `main`, named `<issue-number>-<short-slug>` (e.g. `3-artist-managed-availability`) — matches GitHub's own `gh issue develop` convention, so it stays traceable to the ticket.
+2. Implement the ticket on that branch, committing as work progresses.
+3. Before opening a PR, run `./mvnw test` locally and confirm it's green — there's no CI configured yet, so this local run is the only gate.
+4. Push the branch and open a PR with `gh pr create`, including `Closes #<issue-number>` in the body so merging auto-closes the ticket.
+5. Merge the PR once tests are green — no separate manual review step is required for this workflow.
+
 ## Agent skills
 
 ### Issue tracker
