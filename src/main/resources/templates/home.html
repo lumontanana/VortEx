@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title th:text="${artist.name}">Artist</title>
+	<link rel="stylesheet" th:href="@{/style.css}">
+</head>
+<body>
+	<header class="hero">
+		<nav>
+			<a href="#about">About</a>
+			<a href="#portfolio">Portfolio</a>
+			<a href="#contact">Contact</a>
+		</nav>
+		<h1 th:text="${artist.name}">Artist Name</h1>
+		<p class="tagline" th:text="${artist.bio}">Bio goes here.</p>
+		<a class="cta" th:href="@{/booking}">Book an appointment</a>
+	</header>
+
+	<section id="about">
+		<h2>About</h2>
+		<p th:text="${artist.bio}">Bio goes here.</p>
+	</section>
+
+	<section id="portfolio">
+		<h2>Portfolio</h2>
+		<div class="portfolio-grid">
+			<div class="portfolio-tile" th:each="i : ${#numbers.sequence(1, 6)}">
+				<span th:text="'Sample work ' + ${i}">Sample work</span>
+			</div>
+		</div>
+	</section>
+
+	<section id="contact">
+		<h2>Contact</h2>
+		<ul class="contact-links">
+			<li><a th:href="${artist.instagramUrl}">Instagram</a></li>
+			<li><a th:href="'mailto:' + ${artist.email}" th:text="${artist.email}">email</a></li>
+		</ul>
+		<a class="cta" th:href="@{/booking}">Book an appointment</a>
+	</section>
+</body>
+</html>
