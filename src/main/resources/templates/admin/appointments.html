@@ -17,5 +17,22 @@
 			</form>
 		</li>
 	</ul>
+
+	<h1>Confirmed appointments</h1>
+	<ul>
+		<li th:each="appointment : ${confirmedAppointments}">
+			<span th:text="${appointment.clientName} + ' (' + ${appointment.clientEmail} + ', ' + ${appointment.clientPhone} + ') - ' + ${appointment.description} + ' @ ' + ${appointment.startTime}"></span>
+			<form method="post" th:action="@{/admin/appointments/{id}/reschedule(id=${appointment.id})}" style="display:inline">
+				<input type="datetime-local" name="newStart" required>
+				<button type="submit">Reschedule</button>
+			</form>
+			<form method="post" th:action="@{/admin/appointments/{id}/cancel(id=${appointment.id})}" style="display:inline">
+				<button type="submit">Cancel</button>
+			</form>
+			<form method="post" th:action="@{/admin/appointments/{id}/complete(id=${appointment.id})}" style="display:inline">
+				<button type="submit">Mark complete</button>
+			</form>
+		</li>
+	</ul>
 </body>
 </html>
