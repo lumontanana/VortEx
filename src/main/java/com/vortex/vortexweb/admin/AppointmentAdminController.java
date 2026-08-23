@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Controller
@@ -39,6 +40,25 @@ class AppointmentAdminController {
 		model.addAttribute("confirmedAppointments",
 				appointmentRepository.findByStatusIn(List.of(AppointmentStatus.CONFIRMED)));
 		return "admin/appointments";
+	}
+
+	@GetMapping("/schedule")
+	String schedule(Model model) {
+		LocalDateTime now = LocalDateTime.now();
+		List<Appointment> upcomingAppointments = appointmentRepository
+				.findByStatusIn(List.of(AppointmentStatus.CONFIRMED)).stream()
+				.filter(appointment -> !appointment.getStartTime().isBefore(now))
+				.sorted(Comparator.comparing(Appointment::getStartTime))
+				.toList();
+		List<Appointment> pastAppointments = appointmentRepository
+				.findByStatusIn(List.of(AppointmentStatus.COMPLETED, AppointmentStatus.DECLINED,
+						AppointmentStatus.CANCELLED))
+				.stream()
+				.sorted(Comparator.comparing(Appointment::getStartTime).reversed())
+				.toList();
+		model.addAttribute("upcomingAppointments", upcomingAppointments);
+		model.addAttribute("pastAppointments", pastAppointments);
+		return "admin/schedule";
 	}
 
 	@PostMapping("/{id}/confirm")

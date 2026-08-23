@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>Schedule</title>
+</head>
+<body>
+	<h1>Upcoming appointments</h1>
+	<ul>
+		<li th:each="appointment : ${upcomingAppointments}"
+			th:text="${appointment.startTime} + ' - ' + ${appointment.clientName} + ' - ' + ${appointment.description}">
+		</li>
+	</ul>
+
+	<h1>History</h1>
+	<ul>
+		<li th:each="appointment : ${pastAppointments}"
+			th:text="${appointment.startTime} + ' - ' + ${appointment.clientName} + ' - ' + ${appointment.description} + ' (' + ${appointment.status} + ')'">
+		</li>
+	</ul>
+</body>
+</html>
