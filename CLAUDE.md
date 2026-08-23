@@ -78,16 +78,18 @@ On Windows PowerShell, use `mvnw.cmd` instead of `./mvnw`.
 - When running the app manually (`spring-boot:run`) *and* the test suite at the same time, both connect to the same docker-compose Postgres container (Boot's docker-compose support reuses an already-running container instead of starting a new one). Manually-created data can collide with fixed test fixtures using "tomorrow's date" — stop the manually-run app before running tests if you hit unexpected 409s in booking/availability tests.
 - `vortex.artist.*` (name/bio/instagram-url/email) in `application.properties` are placeholders — swap in the real artist name, bio copy, and contact/social links before launch. The portfolio section on the homepage is CSS-drawn placeholder tiles for the same reason.
 - For UI-facing tickets (e.g. the homepage), the automated test suite only covers rendered *content* (MockMvc never applies CSS or lays out a page). Before calling such a ticket done, also run the app and drive it with an ad-hoc Playwright script (see the pattern used for the booking flow and the homepage) to screenshot both a desktop and a mobile viewport — this is a one-time manual verification step, not a committed test or a new project dependency.
+- CI (`.github/workflows/ci.yml`) runs `./mvnw test` on `ubuntu-latest` for every PR and push to `main`. GitHub-hosted runners come with Docker already running, so `spring-boot-docker-compose` starting Postgres for tests works there the same as locally — no extra CI-specific database setup needed. No branch protection rule requiring this check has been configured yet; that's a separate, deliberate step (Settings → Branches) if you want it enforced rather than just visible.
 
 ## Branch workflow
 
 Work on tickets happens on branches, never directly on `main`:
 
-1. Branch off `main`, named `<issue-number>-<short-slug>` (e.g. `3-artist-managed-availability`) — matches GitHub's own `gh issue develop` convention, so it stays traceable to the ticket.
+1. Branch off `main`, named `<issue-number>-<short-slug>` (e.g. `3-artist-managed-availability`) — matches GitHub's own `gh issue develop` convention, so it stays traceable to the ticket. For work with no tracked issue (infra, fixes found while testing), use a descriptive slug instead (e.g. `ci-github-actions`).
 2. Implement the ticket on that branch, committing as work progresses.
-3. Before opening a PR, run `./mvnw test` locally and confirm it's green — there's no CI configured yet, so this local run is the only gate.
+3. Before opening a PR, run `./mvnw test` locally and confirm it's green.
 4. Push the branch and open a PR with `gh pr create`, including `Closes #<issue-number>` in the body so merging auto-closes the ticket.
-5. Merge the PR once tests are green — no separate manual review step is required for this workflow.
+5. CI (`.github/workflows/ci.yml`) runs `./mvnw test` on every PR and on push to `main` — wait for it to go green (`gh pr checks`) in addition to your own local run.
+6. Merge the PR once tests are green — no separate manual review step is required for this workflow.
 
 ## Agent skills
 
