@@ -16,6 +16,7 @@ This is a Spring Boot project being built out feature-by-feature via GitHub-issu
 - `com.vortex.vortexweb.security` — Spring Security config (`SecurityConfig`) and the seeded-admin-user properties (`AdminUserProperties`, bound from `vortex.admin.*`).
 - `com.vortex.vortexweb.admin` — admin-only, authenticated controllers/views (protected by `SecurityConfig` under `/admin/**`).
 - `com.vortex.vortexweb.availability` — `AvailabilityRule` and `BlockedPeriod` entities/repositories (no controllers here — admin management of them lives in `com.vortex.vortexweb.admin.AvailabilityAdminController`, following the "admin controllers live in `admin`" convention above).
+- `com.vortex.vortexweb.booking` — the public-facing booking domain: `Appointment`/`AppointmentStatus`/`AppointmentRepository`, the `Slot` value type, `SlotService` (computes open slots from availability rules minus blocked periods minus taken appointments, sliced by `vortex.booking.default-duration-minutes`), and the public `BookingController` (unauthenticated, not under `/admin/**`).
 
 ## Stack
 

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>Book an appointment</title>
+</head>
+<body>
+	<h1>Available slots</h1>
+	<ul th:if="${#lists.isEmpty(slots)}">
+		<li>No open slots right now.</li>
+	</ul>
+	<form method="post" th:action="@{/booking}" th:unless="${#lists.isEmpty(slots)}">
+		<select name="slotStart">
+			<option th:each="slot : ${slots}" th:value="${slot.start}"
+					th:text="${slot.start} + ' - ' + ${slot.end}"></option>
+		</select>
+		<input type="text" name="clientName" placeholder="Your name" required>
+		<input type="email" name="clientEmail" placeholder="Your email" required>
+		<input type="tel" name="clientPhone" placeholder="Phone (optional)">
+		<textarea name="description" placeholder="Describe the tattoo you want" required></textarea>
+		<button type="submit">Request appointment</button>
+	</form>
+</body>
+</html>
