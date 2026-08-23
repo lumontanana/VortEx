@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>Availability</title>
+</head>
+<body>
+	<h1>Availability</h1>
+
+	<h2>Working hours</h2>
+	<ul>
+		<li th:each="rule : ${rules}">
+			<span th:text="${rule.dayOfWeek} + ' ' + ${rule.startTime} + '-' + ${rule.endTime}"></span>
+			<form method="post" th:action="@{/admin/availability/rules/{id}/delete(id=${rule.id})}" style="display:inline">
+				<button type="submit">Remove</button>
+			</form>
+		</li>
+	</ul>
+
+	<form method="post" th:action="@{/admin/availability/rules}">
+		<select name="dayOfWeek">
+			<option th:each="day : ${T(java.time.DayOfWeek).values()}" th:value="${day}" th:text="${day}"></option>
+		</select>
+		<input type="time" name="startTime" required>
+		<input type="time" name="endTime" required>
+		<button type="submit">Add rule</button>
+	</form>
+
+	<h2>Blocked periods</h2>
+	<ul>
+		<li th:each="blockedPeriod : ${blockedPeriods}">
+			<span th:text="${blockedPeriod.startDateTime} + ' - ' + ${blockedPeriod.endDateTime} + ' (' + ${blockedPeriod.reason} + ')'"></span>
+			<form method="post" th:action="@{/admin/availability/blocked-periods/{id}/delete(id=${blockedPeriod.id})}" style="display:inline">
+				<button type="submit">Remove</button>
+			</form>
+		</li>
+	</ul>
+
+	<form method="post" th:action="@{/admin/availability/blocked-periods}">
+		<input type="datetime-local" name="startDateTime" required>
+		<input type="datetime-local" name="endDateTime" required>
+		<input type="text" name="reason" placeholder="Reason (optional)">
+		<button type="submit">Add blocked period</button>
+	</form>
+</body>
+</html>

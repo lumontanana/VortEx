@@ -15,6 +15,7 @@ This is a Spring Boot project being built out feature-by-feature via GitHub-issu
 
 - `com.vortex.vortexweb.security` — Spring Security config (`SecurityConfig`) and the seeded-admin-user properties (`AdminUserProperties`, bound from `vortex.admin.*`).
 - `com.vortex.vortexweb.admin` — admin-only, authenticated controllers/views (protected by `SecurityConfig` under `/admin/**`).
+- `com.vortex.vortexweb.availability` — `AvailabilityRule` and `BlockedPeriod` entities/repositories (no controllers here — admin management of them lives in `com.vortex.vortexweb.admin.AvailabilityAdminController`, following the "admin controllers live in `admin`" convention above).
 
 ## Stack
 
@@ -66,6 +67,7 @@ On Windows PowerShell, use `mvnw.cmd` instead of `./mvnw`.
 - `spring.docker.compose.skip.in-tests` is explicitly set to `false` in `application.properties`. Spring Boot's docker-compose support defaults to *skipping* itself during `@SpringBootTest` runs, which otherwise breaks every test (JPA/Postgres autoconfiguration is active from the classpath even before any entities exist, so tests fail to find a datasource). This project's testing strategy relies on real HTTP + real Postgres integration tests, so this must stay `false`.
 - Docker Desktop must be running for both `spring-boot:run` and `./mvnw test` — both start the `postgres` service from `compose.yaml` automatically, but only if the Docker daemon itself is already up.
 - Primary test seam (established by the admin-authentication ticket, `AdminAuthenticationTests`): `@SpringBootTest` + `@AutoConfigureMockMvc`, exercising the real controller/security-filter-chain/DB stack with nothing internal mocked. Use `spring-security-test`'s `formLogin()`/`authenticated()`/`unauthenticated()` helpers for auth flows.
+- `spring.jpa.hibernate.ddl-auto=update` is set in `application.properties`. There's no Flyway/Liquibase migration tool yet — this is the pragmatic default for a greenfield app with no other schema consumers. Revisit (switch to a real migration tool) before this app has real production data to lose.
 
 ## Branch workflow
 
