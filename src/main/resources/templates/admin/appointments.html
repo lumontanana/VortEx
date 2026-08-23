@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>Appointment requests</title>
+</head>
+<body>
+	<h1>Pending requests</h1>
+	<ul>
+		<li th:each="appointment : ${pendingAppointments}">
+			<span th:text="${appointment.clientName} + ' (' + ${appointment.clientEmail} + ', ' + ${appointment.clientPhone} + ') - ' + ${appointment.description} + ' @ ' + ${appointment.startTime}"></span>
+			<form method="post" th:action="@{/admin/appointments/{id}/confirm(id=${appointment.id})}" style="display:inline">
+				<button type="submit">Confirm</button>
+			</form>
+			<form method="post" th:action="@{/admin/appointments/{id}/decline(id=${appointment.id})}" style="display:inline">
+				<button type="submit">Decline</button>
+			</form>
+		</li>
+	</ul>
+</body>
+</html>
