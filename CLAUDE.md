@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project state
 
-This is a Spring Boot project being built out feature-by-feature via GitHub-issue tickets (see `docs/agents/issue-tracker.md`). It started from Spring Initializr; the first real feature — a booking/appointment scheduling system (parent spec: issue #1) — is in progress, ticket by ticket.
+This is a Spring Boot project being built out feature-by-feature via GitHub-issue tickets (see `docs/agents/issue-tracker.md`). It started from Spring Initializr; the first real feature — a booking/appointment scheduling system (parent spec: issue #1, tickets #2-#8) — is fully implemented. Future features should follow the same spec → tickets → branch-per-ticket workflow.
 
 - Group/artifact: `com.vortex:vortexweb`
 - Java version: 26
@@ -18,7 +18,7 @@ This is a Spring Boot project being built out feature-by-feature via GitHub-issu
 - `com.vortex.vortexweb.availability` — `AvailabilityRule` and `BlockedPeriod` entities/repositories (no controllers here — admin management of them lives in `com.vortex.vortexweb.admin.AvailabilityAdminController`, following the "admin controllers live in `admin`" convention above).
 - `com.vortex.vortexweb.booking` — the public-facing booking domain: `Appointment`/`AppointmentStatus`/`AppointmentRepository`, the `Slot` value type, `SlotService` (computes open slots from availability rules minus blocked periods minus taken appointments, sliced by `vortex.booking.default-duration-minutes`), and the public `BookingController` (unauthenticated, not under `/admin/**`).
 - `com.vortex.vortexweb.notifications` — `NotificationService` interface (`send(to, subject, body)`) abstracting outbound client emails, with `EmailNotificationService` as the sole implementation (calls a transactional email provider's HTTP API via a `RestClient`, configured from `vortex.notifications.email.*`). Callers (e.g. `BookingController`, `AppointmentAdminController`) depend only on the interface; tests that don't care about emails should `@MockitoBean` it rather than let real submissions hit the (fake) configured provider URL.
-- `com.vortex.vortexweb.admin.AppointmentAdminController` — lists `PENDING` and `CONFIRMED` appointments and lets the artist: confirm (→ `CONFIRMED`, rejected with 409 if it now overlaps another `CONFIRMED` appointment) or decline (→ `DECLINED`) a pending request; reschedule (moves `startTime`, rejected with 409 on overlap against *other* confirmed appointments), cancel (→ `CANCELLED`), or mark complete (→ `COMPLETED`, no email) a confirmed one. Lives in `admin` (not `booking`) per the "admin controllers live in `admin`" convention, even though `Appointment` itself is a `booking` type.
+- `com.vortex.vortexweb.admin.AppointmentAdminController` — lists `PENDING` and `CONFIRMED` appointments and lets the artist: confirm (→ `CONFIRMED`, rejected with 409 if it now overlaps another `CONFIRMED` appointment) or decline (→ `DECLINED`) a pending request; reschedule (moves `startTime`, rejected with 409 on overlap against *other* confirmed appointments), cancel (→ `CANCELLED`), or mark complete (→ `COMPLETED`, no email) a confirmed one. Also serves `/admin/appointments/schedule`: upcoming `CONFIRMED` appointments (future `startTime` only) and a history view (`COMPLETED`/`DECLINED`/`CANCELLED`). Lives in `admin` (not `booking`) per the "admin controllers live in `admin`" convention, even though `Appointment` itself is a `booking` type.
 
 ## Stack
 
