@@ -1,5 +1,6 @@
 package com.vortex.vortexweb.booking;
 
+import com.vortex.vortexweb.notifications.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,12 +23,15 @@ class BookingController {
 
 	private final BookingProperties bookingProperties;
 
+	private final NotificationService notificationService;
+
 	@Autowired
 	BookingController(SlotService slotService, AppointmentRepository appointmentRepository,
-			BookingProperties bookingProperties) {
+			BookingProperties bookingProperties, NotificationService notificationService) {
 		this.slotService = slotService;
 		this.appointmentRepository = appointmentRepository;
 		this.bookingProperties = bookingProperties;
+		this.notificationService = notificationService;
 	}
 
 	@GetMapping
@@ -45,6 +49,9 @@ class BookingController {
 		}
 		appointmentRepository.save(new Appointment(clientName, clientEmail, clientPhone, description, slotStart,
 				bookingProperties.defaultDurationMinutes(), AppointmentStatus.PENDING));
+		notificationService.send(clientEmail, "Your booking request has been received",
+				"Thanks for your request for " + slotStart + ": " + description
+						+ ". We'll be in touch once it's been reviewed.");
 		return "redirect:/booking";
 	}
 

@@ -4,11 +4,13 @@ import com.vortex.vortexweb.availability.AvailabilityRule;
 import com.vortex.vortexweb.availability.AvailabilityRuleRepository;
 import com.vortex.vortexweb.availability.BlockedPeriod;
 import com.vortex.vortexweb.availability.BlockedPeriodRepository;
+import com.vortex.vortexweb.notifications.NotificationService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
@@ -31,6 +33,9 @@ class BookingTests {
 
 	@Autowired
 	private MockMvc mockMvc;
+
+	@MockitoBean
+	private NotificationService notificationService;
 
 	@Autowired
 	private AvailabilityRuleRepository availabilityRuleRepository;
